@@ -17,6 +17,8 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using LINGYUN.AuthServer;
+using Microsoft.OpenApi.Models;
 using Volo.Abp.Account.Localization;
 using Volo.Abp.Auditing;
 using Volo.Abp.Caching;
@@ -162,6 +164,39 @@ namespace AuthServer.Host
                 options.ApplicationName = "Identity-Server-STS";
             });
         }
+
+        private void ConfigureSwagger(IServiceCollection services)
+        {
+            // Swagger
+            services.AddSwaggerGen(
+                options =>
+                {
+                    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth Identity API", Version = "v1" });
+                    options.DocInclusionPredicate((docName, description) => true);
+                    options.CustomSchemaIds(type => type.FullName);
+                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Scheme = "bearer",
+                        Type = SecuritySchemeType.Http,
+                        BearerFormat = "JWT"
+                    });
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                            },
+                            new string[] { }
+                        }
+                    });
+                    options.OperationFilter<TenantHeaderParamter>();
+                });
+        }
+
         private void ConfigureUrls(IConfiguration configuration)
         {
             Configure<AppUrlOptions>(options =>

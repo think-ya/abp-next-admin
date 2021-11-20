@@ -88,6 +88,7 @@ namespace AuthServer.Host
             ConfigureVirtualFileSystem();
             ConfigureLocalization();
             ConfigureAuditing();
+            ConfigureSwagger(context.Services);
             ConfigureDataSeeder();
             ConfigureUrls(configuration);
             ConfigureMultiTenancy(configuration);
@@ -124,6 +125,15 @@ namespace AuthServer.Host
             app.UseAbpRequestLocalization();
             app.UseIdentityServer();
             app.UseAuthorization();
+
+            // Swagger
+            app.UseSwagger();
+            // Swagger可视化界面
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Support Identity API");
+            });
+
             app.UseAuditing();
             app.UseAbpSerilogEnrichers();
             app.UseConfiguredEndpoints();
