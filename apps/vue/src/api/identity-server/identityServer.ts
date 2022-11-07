@@ -8,5 +8,8 @@ enum Api {
 export const discovery = () => {
   return defAbpHttp.get<OpenIdConfiguration>({
     url: Api.Discovery,
+  },
+  {
+    apiUrl: '/connect',
   });
 };
